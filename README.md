@@ -1,2 +1,2 @@
 # bolstyle
-An Intonation description system.
+A simple Intonation description system.
