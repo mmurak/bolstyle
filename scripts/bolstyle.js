@@ -24,7 +24,7 @@ class GlobalManager {
 		this.steps = document.getElementById("Steps");
 
 		this.sentence = "";
-		this.blankWidth = 10;
+		this.blankWidth = 15;
 		this.leftMargin = 20;
 		this.baselineHeight = 200;
 		this.fontFamily = "Times New Roman";
