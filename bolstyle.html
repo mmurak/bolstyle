@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Bolinger Style</title>
+		<link rel="shortcut icon" href="./kiwi-bird-bolgreen.png">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" >
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="./bolstyle.css">
+	</head>
+	<body>
+
+
+<div id="Controls">
+	<button type="button" id="InputSentenceButton" onclick="processInputSentence();">New Sentence</button>
+	<input type="file" id="LoadSVG" accept=".svg">
+	<br>
+	<button type="button" id="InsetAfter" onclick="insertAfter();">Insert After</button>
+	<button type="button" id="DeleteChar" onclick="deleteChars();">Delete Char(s)</button>
+	<label for="Steps">delta: </label>
+	<input type="number" id="Steps" value="20" min="1" max="50" />
+	<button type="button" id="UpTune" onclick="upTune();">Up tune</button>
+	<button type="button" id="DownTune" onclick="downTune();">Down tune</button>
+	<button type="button" id="Legato" onclick="legato();">Legato</button>
+	<br>
+	<button type="button" id="ToggleAcute" onclick="toggleAcute();">Toggle Acute</button>
+	<hr>
+	<button type="button" id="SaveSVG" onclick="saveSVG();">Save SVG</button>
+	<label for="SVGwidth"> width: </label>
+	<input type="textfield" id="SVGwidth" value="1200" />
+	<hr>
+</div>
+
+<div id="Pnode">
+	<svg id="SVGarea" version="1.1" baseProfile="full" height="400" xmlns="http://www.w3.org/2000/svg"></svg>
+</div>
+
+<div id="UIfield"></div>
+
+<script src="./scripts/bolstyle.js"></script>
+	</body>
+<html>
