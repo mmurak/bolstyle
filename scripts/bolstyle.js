@@ -21,6 +21,13 @@ class GlobalManager {
 		this.svgWidth = document.getElementById("SVGwidth");
 		this.svgWidth.addEventListener("change", _adjustWidth);
 
+		this.rulerField = document.getElementById("RulerField");
+		this.rulerCanvas = document.createElement("canvas");
+		this.rulerCanvas.width = this.svgWidth.value;
+		this.rulerCanvas.height = 400;
+		this.rulerField.appendChild(this.rulerCanvas);
+		this.rulerCtx = this.rulerCanvas.getContext("2d");
+
 		this.steps = document.getElementById("Steps");
 
 		this.sentence = "";
@@ -36,12 +43,14 @@ class GlobalManager {
 
 const G = new GlobalManager();
 _paintBackground();
+_eraseRuler();
 _clearUIfield();
 _adjustWidth();
 
 function processInputSentence() {
 	G.sentence = prompt("Input sentence.");
 	if (G.sentence == null) return;
+	_eraseRuler();
 	let cArray = _specialSplit(G.sentence);
 	let yArray = Array(cArray.length).fill(G.baselineHeight);
 	_buildUpField(cArray, yArray);
@@ -115,6 +124,7 @@ function _paintBackground() {
 function _clearTagSelection() {
 	if (G.tagId <= 1) return;
 	_paintText(1, G.tagId - 1, "black");
+	_eraseRuler();
 }
 
 function _getTagColour(tId) {
@@ -156,11 +166,27 @@ function _specialSplit(str) {
 	return result;
 }
 
+function _eraseRuler() {
+	G.rulerCtx.fillStyle = "white";
+	G.rulerCtx.fillRect(0, 0, G.svgWidth.value, 400);
+}
+function _drawRuler(y) {
+	G.rulerCtx.fillStyle = "red";
+	G.rulerCtx.lineWidth = 2;
+	G.rulerCtx.beginPath();
+	G.rulerCtx.moveTo(0, y);
+	G.rulerCtx.lineTo(G.svgWidth.value, y);
+	G.rulerCtx.stroke();
+}
+
 function processMouseDown(evt) {
 	G.mouseInMotion = true;
 	_clearTagSelection();
 	let rId = evt.target.id;
 	G.dragStartNo = rId.substring(1)
+	_eraseRuler();
+	let obj = document.getElementById("t" + G.dragStartNo);
+	_drawRuler(obj.getAttribute("y"));
 	_paintText(G.dragStartNo, G.dragStartNo, "red");
 	evt.preventDefault();
 }
@@ -178,6 +204,8 @@ function upTune() {
 		if (_getTagColour(i) == "red") {
 			const tag = document.getElementById("t" + i);
 			tag.setAttribute("y", Number(tag.getAttribute("y")) - steps);
+			_eraseRuler();
+			_drawRuler(tag.getAttribute("y"));
 		}
 	}
 }
@@ -188,6 +216,8 @@ function downTune() {
 		if (_getTagColour(i) == "red") {
 			const tag = document.getElementById("t" + i);
 			tag.setAttribute("y", Number(tag.getAttribute("y")) + steps);
+			_eraseRuler();
+			_drawRuler(tag.getAttribute("y"));
 		}
 	}
 }
@@ -237,6 +267,7 @@ function toggleAcute() {
 function deleteChars() {
 	let newArray = [];
 	let newYarray = [];
+	_eraseRuler();
 	for (i = 1; i < G.tagId; i++) {
 		const obj = document.getElementById("t" + i);
 		if (obj.getAttribute("fill") != "red") {
@@ -250,6 +281,7 @@ function deleteChars() {
 function insertAfter() {
 	const phrase = prompt("Input phrase.");
 	if (phrase == null) return;
+	_eraseRuler();
 	let idx = G.tagId - 1;
 	while ((idx > 0) && (document.getElementById("t" + idx).getAttribute("fill") != "red")) {
 		idx--;
