@@ -1,5 +1,15 @@
 class GlobalManager {
 	constructor() {
+		this.sentence = "";
+		this.blankWidth = 15;
+		this.leftMargin = 20;
+		this.areaHeight = 400;
+		this.baselineHeight = 200;
+		this.fontFamily = "Times New Roman";
+		this.fontSize = 48;
+		this.tagId = 1;
+		this.dragStartNo = -1;
+
 		this.inputSentenceButton = document.getElementById("InputSentenceButton");
 		this.svgArea = document.getElementById("SVGarea");
 		this.svgNS = this.svgArea.namespaceURI;
@@ -21,23 +31,18 @@ class GlobalManager {
 		this.svgWidth = document.getElementById("SVGwidth");
 		this.svgWidth.addEventListener("change", _adjustWidth);
 
+		this.backgroundColour = document.getElementById("BackgroundColour");
+		this.backgroundColour.addEventListener("change", _changeBackgroundColour);
+
 		this.rulerField = document.getElementById("RulerField");
 		this.rulerCanvas = document.createElement("canvas");
 		this.rulerCanvas.width = this.svgWidth.value;
-		this.rulerCanvas.height = 400;
+		this.rulerCanvas.height = this.areaHeight;
 		this.rulerField.appendChild(this.rulerCanvas);
 		this.rulerCtx = this.rulerCanvas.getContext("2d");
 
 		this.steps = document.getElementById("Steps");
 
-		this.sentence = "";
-		this.blankWidth = 15;
-		this.leftMargin = 20;
-		this.baselineHeight = 200;
-		this.fontFamily = "Times New Roman";
-		this.fontSize = 48;
-		this.tagId = 1;
-		this.dragStartNo = -1;
 	}
 }
 
@@ -80,14 +85,14 @@ function _buildUpField(cArray, yArray) {
 		// Create Cover canvas
 		let cover = document.createElement("canvas");
 		cover.width = thisX;
-		cover.height = 400;
+		cover.height = G.areaHeight;
 		cover.id = "r" + G.tagId;
 		cover.addEventListener("mousedown", processMouseDown);
 		cover.addEventListener("mouseenter", processMouseEnter);
 		let ctx = cover.getContext("2d");
 //		ctx.fillStyle = (G.tagId % 2 == 0) ? "green" : "red";
 		ctx.fillStyle = "white";
-		ctx.fillRect(0, 0, thisX, 400);
+		ctx.fillRect(0, 0, thisX, G.areaHeight);
 		cover.setAttribute("style", "position: absolute; left: " + x + "px;");
 		G.uiField.appendChild(cover);
 		// House keeping
@@ -103,22 +108,28 @@ function _clearUIfield() {
 	}
 	let margin = document.createElement("canvas");
 	margin.width = G.leftMargin;
-	margin.height = 400;
+	margin.height = G.areaHeight;
 	margin.id = "r0";
 	margin.addEventListener("click", _clearTagSelection);
 	let marginCtx = margin.getContext("2d");
 	marginCtx.fillStyle = "orange";
-	marginCtx.fillRect(0, 0, G.leftMargin, 400);
+	marginCtx.fillRect(0, 0, G.leftMargin, G.areaHeight);
 	margin.setAttribute("style", "position: absolute; left: 0px;");
 	G.uiField.appendChild(margin);
 }
 
 function _paintBackground() {
 	let rect = document.createElementNS(G.svgNS,"rect");
+	rect.setAttribute("id", "bg");
 	rect.setAttribute("width", "100%");
 	rect.setAttribute("height", "100%");
-	rect.setAttribute("fill", "lightGray");
+	rect.setAttribute("fill", G.backgroundColour.options[G.backgroundColour.selectedIndex].value);
 	G.svgArea.appendChild(rect);
+}
+
+function _changeBackgroundColour() {
+	const obj = document.getElementById("bg");
+	obj.setAttribute("fill", G.backgroundColour.options[G.backgroundColour.selectedIndex].value);
 }
 
 function _clearTagSelection() {
@@ -148,6 +159,12 @@ function _paintText(numFrom, numTo, colour) {
 }
 function _adjustWidth() {
 	G.svgArea.setAttribute("width", G.svgWidth.value);
+	G.rulerCanvas.remove();
+	G.rulerCanvas = document.createElement("canvas");
+	G.rulerCanvas.width = G.svgWidth.value;
+	G.rulerCanvas.height = G.areaHeight;
+	G.rulerField.appendChild(G.rulerCanvas);
+	G.rulerCtx = G.rulerCanvas.getContext("2d");
 }
 
 function _specialSplit(str) {
@@ -168,7 +185,7 @@ function _specialSplit(str) {
 
 function _eraseRuler() {
 	G.rulerCtx.fillStyle = "white";
-	G.rulerCtx.fillRect(0, 0, G.svgWidth.value, 400);
+	G.rulerCtx.fillRect(0, 0, G.svgWidth.value, G.areaHeight);
 }
 function _drawRuler(y) {
 	G.rulerCtx.fillStyle = "red";
@@ -304,6 +321,7 @@ function insertAfter() {
 }
 
 async function loadSVG() {
+	_eraseRuler();
 	const file = G.loadSVG.files[0];
 	await readFile(file);
 }
@@ -316,6 +334,8 @@ async function readFile(file) {
 		document.getElementById("Pnode").innerHTML = svgCode;
 		G.svgArea = document.getElementById("SVGarea");
 		G.svgWidth.value = G.svgArea.getAttribute("width");
+		if (G.svgWidth.value == "") G.svgWidth.value = 1200;
+		_adjustWidth();
 
 		// Some of the lines are violating DRY!  for now...
 		let x = G.leftMargin;
@@ -326,14 +346,14 @@ async function readFile(file) {
 			// Create Cover canvas
 			let cover = document.createElement("canvas");
 			cover.width = thisX;
-			cover.height = 400;
+			cover.height = G.areaHeight;
 			cover.id = "r" + G.tagId;
 			cover.addEventListener("mousedown", processMouseDown);
 			cover.addEventListener("mouseenter", processMouseEnter);
 			let ctx = cover.getContext("2d");
 //			ctx.fillStyle = (G.tagId % 2 == 0) ? "green" : "red";
 			ctx.fillStyle = "white";
-			ctx.fillRect(0, 0, thisX, 400);
+			ctx.fillRect(0, 0, thisX, G.areaHeight);
 			cover.setAttribute("style", "position: absolute; left: " + x + "px;");
 			G.uiField.appendChild(cover);
 			x += thisX;

@@ -11,9 +11,17 @@
 
 
 <div id="Controls">
-	<button type="button" id="InputSentenceButton" onclick="processInputSentence();">New Sentence</button>
-	<input type="file" id="LoadSVG" accept=".svg">
-	<br>
+	<div style="display: flex;">
+		<button type="button" id="InputSentenceButton" onclick="processInputSentence();">New Sentence</button>
+		<input type="file" id="LoadSVG" accept=".svg">
+		<div style="margin-left: auto;">
+			<label for="BackgroundColour">Background colour</label>
+			<select id="BackgroundColour">
+				<option value="lightGray" selected>Light Gray</label>
+				<option value="white">White</label>
+			</select>
+		</div>
+	</div>
 	<button type="button" id="InsetAfter" onclick="insertAfter();">Insert After</button>
 	<button type="button" id="DeleteChar" onclick="deleteChars();">Delete Char(s)</button>
 	<label for="Steps">delta: </label>
