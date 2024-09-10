@@ -130,7 +130,7 @@ function _paintBackground() {
 function _changeBackgroundColour() {
 	const obj = document.getElementById("bg");
 	if (obj == null)  {
-		alert("I couldn't find 'bg' identifier.  Please insert 'id=\"bg\" ' to the first 'rect' element.");
+		alert("I couldn't find 'bg' identifier.  Please add the 'id=\"bg\" ' to the first 'rect' element.");
 		G.backgroundColour.selectedIndex = 0;
 		return;
 	}
