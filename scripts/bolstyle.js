@@ -129,6 +129,11 @@ function _paintBackground() {
 
 function _changeBackgroundColour() {
 	const obj = document.getElementById("bg");
+	if (obj == null)  {
+		alert("I couldn't find 'bg' identifier.  Please insert 'id=\"bg\" ' to the first 'rect' element.");
+		G.backgroundColour.selectedIndex = 0;
+		return;
+	}
 	obj.setAttribute("fill", G.backgroundColour.options[G.backgroundColour.selectedIndex].value);
 }
 
@@ -345,7 +350,12 @@ async function readFile(file) {
 		G.svgWidth.value = G.svgArea.getAttribute("width");
 		if (G.svgWidth.value == "") G.svgWidth.value = 1200;		// shabby patch
 		_adjustWidth();
-
+		let bColour = document.getElementById("bg");
+		if (bColour == null) {
+			G.backgroundColour.selectedIndex = 0;
+		} else {
+			G.backgroundColour.selectedIndex = (bColour.getAttribute("fill").toLowerCase() == "white") ? 1 : 0;
+		}
 		// Some of the lines are violating DRY!  for now...
 		let x = G.leftMargin;
 		for (G.tagId = 1; ; G.tagId++) {
