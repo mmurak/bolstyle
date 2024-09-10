@@ -196,6 +196,15 @@ function _drawRuler(y) {
 	G.rulerCtx.stroke();
 }
 
+function _getWidth() {
+	if (G.svgWidth.value.match(/^\d+$/)) {
+		return G.svgWidth.value;
+	} else {
+		G.svgWidth.value = 1200;
+		return G.svgWidth.value;
+	}
+}
+
 function processMouseDown(evt) {
 	G.mouseInMotion = true;
 	_clearTagSelection();
@@ -334,7 +343,7 @@ async function readFile(file) {
 		document.getElementById("Pnode").innerHTML = svgCode;
 		G.svgArea = document.getElementById("SVGarea");
 		G.svgWidth.value = G.svgArea.getAttribute("width");
-		if (G.svgWidth.value == "") G.svgWidth.value = 1200;
+		if (G.svgWidth.value == "") G.svgWidth.value = 1200;		// shabby patch
 		_adjustWidth();
 
 		// Some of the lines are violating DRY!  for now...
@@ -380,3 +389,55 @@ function saveSVG() {
 	document.body.removeChild(a);
 	URL.revokeObjectURL(svgUrl);	
 }
+
+function savePNG() {
+	saveAsPNG()
+	.then((data) => {
+		const a = document.createElement("a");
+		a.href = data;
+		a.download = "output";
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		URL.revokeObjectURL(data);	
+	})
+	.catch((err) => {
+		console.log("ERROR:" + err);
+	});
+}
+
+function saveAsPNG() {
+	_clearTagSelection();
+
+	G.svgArea.setAttribute("width", G.svgWidth.value);
+	const svgText = new XMLSerializer().serializeToString(G.svgArea);
+
+	// Convert an SVG text to PNG using the browser
+	return new Promise(function(resolve, reject) {
+		try {
+			let domUrl = window.URL || window.webkitURL || window;
+			if (!domUrl) {
+				throw new Error("Browser doesn't support DOM URL feature.")
+			}
+
+			let aCanvas = document.createElement("canvas");
+			aCanvas.width = G.svgWidth.value;
+			aCanvas.height = G.areaHeight;
+			let aCanvasCtx = aCanvas.getContext("2d");
+			let blob = new Blob([svgText], {
+				type: "image/svg+xml;charset=utf-8"
+			});
+			let url = domUrl.createObjectURL(blob);
+
+			let img = new Image;
+			img.onload = function() {
+				aCanvasCtx.drawImage(this, 0, 0, aCanvas.width, aCanvas.height);
+				domUrl.revokeObjectURL(url);
+				resolve(aCanvas.toDataURL());
+			};
+			img.src = url;
+		} catch (err) {
+			reject("failed to convert SVG to PNG: " + err);
+		}
+	});
+};
